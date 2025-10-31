@@ -250,11 +250,15 @@ export default function ItineraryPage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              const idToDelete = itinerary.id;
+                              const idToDelete: string = itinerary.id;
                               deleteItinerary(idToDelete);
-                              if (currentItinerary?.id === idToDelete) {
-                                setCurrentItinerary(null);
-                              }
+                              // Clear current itinerary if it was the one deleted
+                              setCurrentItinerary((prev) => {
+                                if (prev && prev.id === idToDelete) {
+                                  return null;
+                                }
+                                return prev;
+                              });
                             }}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                           >

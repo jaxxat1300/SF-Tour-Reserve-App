@@ -9,6 +9,13 @@ import { useStore } from '@/lib/store';
 import { useState } from 'react';
 import Link from 'next/link';
 
+// Generate static params for all experiences (required for static export)
+export async function generateStaticParams() {
+  return mockExperiences.map((experience) => ({
+    id: experience.id,
+  }));
+}
+
 export default function ExperienceDetailPage() {
   const params = useParams();
   const id = params.id as string;

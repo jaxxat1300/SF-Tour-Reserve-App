@@ -15,7 +15,7 @@ export type Occasion =
 
 export type Duration = 'half-day' | 'full-day' | 'evening' | 'custom';
 
-export type BudgetLevel = 1 | 2 | 3 | 4 | 'custom';
+export type BudgetLevel = 1 | 2 | 3 | 4 | 'custom' | number;
 
 interface PlanningOptionsProps {
   occasion: Occasion;

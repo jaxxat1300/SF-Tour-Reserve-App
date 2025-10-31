@@ -72,7 +72,7 @@ export default function FilterDrawer({
   };
 
   const toggleArrayFilter = (key: 'type' | 'priceLevel' | 'neighborhood' | 'timeOfDay' | 'occasion', value: string) => {
-    const current = localFilters[key] || [];
+    const current = (localFilters[key] || []) as string[];
     const updated = current.includes(value)
       ? current.filter((v) => v !== value)
       : [...current, value];

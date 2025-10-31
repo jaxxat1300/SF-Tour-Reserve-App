@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import ExperienceCard from '@/components/ExperienceCard';
@@ -11,7 +11,7 @@ import { useStore, Itinerary, ItineraryItem } from '@/lib/store';
 import { format } from 'date-fns';
 import Link from 'next/link';
 
-export default function ItineraryPage() {
+function ItineraryContent() {
   const searchParams = useSearchParams();
   const addExperienceId = searchParams.get('add');
   const { itineraries, addItinerary, updateItinerary, deleteItinerary } = useStore();
@@ -250,11 +250,15 @@ export default function ItineraryPage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              const idToDelete = itinerary.id;
+                              const idToDelete: string = itinerary.id;
                               deleteItinerary(idToDelete);
-                              if (currentItinerary?.id === idToDelete) {
-                                setCurrentItinerary(null);
-                              }
+                              // Clear current itinerary if it was the one deleted
+                              setCurrentItinerary((prev) => {
+                                if (prev && prev.id === idToDelete) {
+                                  return null;
+                                }
+                                return prev;
+                              });
                             }}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                           >
@@ -495,6 +499,24 @@ export default function ItineraryPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ItineraryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-64 mb-4" />
+            <div className="h-4 bg-gray-200 rounded w-48" />
+          </div>
+        </div>
+      </div>
+    }>
+      <ItineraryContent />
+    </Suspense>
   );
 }
 

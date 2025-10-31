@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const isGithubPages = process.env.GITHUB_PAGES === 'true' || process.env.NODE_ENV === 'production'
+const isGithubPages = process.env.GITHUB_PAGES === 'true'
 const repoName = 'SF-Tour-Reserve-App'
 
 const nextConfig = {

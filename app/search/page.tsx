@@ -7,10 +7,11 @@ import SearchBar from '@/components/SearchBar';
 import ExperienceCard from '@/components/ExperienceCard';
 import FilterDrawer from '@/components/FilterDrawer';
 import ExperienceMap from '@/components/ExperienceMap';
-import { Filter, Map } from 'lucide-react';
+import { Filter, Map, X } from 'lucide-react';
 import { mockExperiences } from '@/lib/mockData';
 import { Experience } from '@/lib/store';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatPrice } from '@/lib/utils';
 
 // Natural language search parser
 function parseNaturalLanguageQuery(query: string) {
@@ -303,13 +304,153 @@ function SearchContent() {
       {/* Results */}
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {filteredExperiences.length} Experience{filteredExperiences.length !== 1 ? 's' : ''} Found
-          </h1>
-          {query && (
-            <p className="text-gray-600 mt-1">
-              Results for &quot;{query}&quot;
-            </p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {filteredExperiences.length} Experience{filteredExperiences.length !== 1 ? 's' : ''} Found
+              </h1>
+              {query && (
+                <p className="text-gray-600 mt-1">
+                  Results for &quot;{query}&quot;
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Active Filter Chips */}
+          {activeFilterCount > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {filters.type && filters.type.length > 0 && filters.type.map((type) => {
+                const typeLabels: Record<string, string> = {
+                  food: 'Food & Dining',
+                  outdoor: 'Outdoor',
+                  arts: 'Arts & Culture',
+                  nightlife: 'Nightlife',
+                  shopping: 'Shopping',
+                  wellness: 'Wellness',
+                  sightseeing: 'Sightseeing',
+                  hidden: 'Hidden Gems',
+                  family: 'Family',
+                  activities: 'Activities',
+                  entertainment: 'Entertainment',
+                  cultural: 'Cultural',
+                  free: 'Free Activities',
+                };
+                return (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      const newTypes = filters.type?.filter(t => t !== type) || [];
+                      setFilters({ ...filters, type: newTypes.length > 0 ? newTypes : undefined });
+                    }}
+                    className="px-3 py-1.5 text-sm font-medium bg-primary-100 text-primary-700 rounded-full hover:bg-primary-200 transition-colors flex items-center gap-2"
+                  >
+                    {typeLabels[type] || type}
+                    <X className="h-3 w-3" />
+                  </button>
+                );
+              })}
+              {filters.priceLevel && filters.priceLevel.length > 0 && filters.priceLevel.map((level) => (
+                <button
+                  key={level}
+                  onClick={() => {
+                    const newLevels = filters.priceLevel?.filter(l => l !== level) || [];
+                    setFilters({ ...filters, priceLevel: newLevels.length > 0 ? newLevels : undefined });
+                  }}
+                  className="px-3 py-1.5 text-sm font-medium bg-secondary-100 text-secondary-700 rounded-full hover:bg-secondary-200 transition-colors flex items-center gap-2"
+                >
+                  {formatPrice(level as 1 | 2 | 3 | 4)}
+                  <X className="h-3 w-3" />
+                </button>
+              ))}
+              {filters.neighborhood && filters.neighborhood.length > 0 && filters.neighborhood.map((neighborhood) => (
+                <button
+                  key={neighborhood}
+                  onClick={() => {
+                    const newNeighborhoods = filters.neighborhood?.filter(n => n !== neighborhood) || [];
+                    setFilters({ ...filters, neighborhood: newNeighborhoods.length > 0 ? newNeighborhoods : undefined });
+                  }}
+                  className="px-3 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors flex items-center gap-2"
+                >
+                  {neighborhood}
+                  <X className="h-3 w-3" />
+                </button>
+              ))}
+              {filters.occasion && filters.occasion.length > 0 && filters.occasion.map((occasion) => {
+                const occasionLabels: Record<string, string> = {
+                  'date-night': 'Date Night',
+                  'birthday': 'Birthday',
+                  'anniversary': 'Anniversary',
+                  'memorial': 'Memorial',
+                  'family': 'Family',
+                  'solo': 'Solo',
+                  'friends': 'Friends',
+                  'general': 'General',
+                };
+                return (
+                  <button
+                    key={occasion}
+                    onClick={() => {
+                      const newOccasions = filters.occasion?.filter(o => o !== occasion) || [];
+                      setFilters({ ...filters, occasion: newOccasions.length > 0 ? newOccasions : undefined });
+                    }}
+                    className="px-3 py-1.5 text-sm font-medium bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors flex items-center gap-2"
+                  >
+                    {occasionLabels[occasion] || occasion}
+                    <X className="h-3 w-3" />
+                  </button>
+                );
+              })}
+              {(filters.indoor || filters.outdoor || filters.kidFriendly || filters.accessibility) && (
+                <>
+                  {filters.indoor && (
+                    <button
+                      onClick={() => setFilters({ ...filters, indoor: undefined })}
+                      className="px-3 py-1.5 text-sm font-medium bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors flex items-center gap-2"
+                    >
+                      Indoor
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                  {filters.outdoor && (
+                    <button
+                      onClick={() => setFilters({ ...filters, outdoor: undefined })}
+                      className="px-3 py-1.5 text-sm font-medium bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors flex items-center gap-2"
+                    >
+                      Outdoor
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                  {filters.kidFriendly && (
+                    <button
+                      onClick={() => setFilters({ ...filters, kidFriendly: undefined })}
+                      className="px-3 py-1.5 text-sm font-medium bg-yellow-100 text-yellow-700 rounded-full hover:bg-yellow-200 transition-colors flex items-center gap-2"
+                    >
+                      Kid Friendly
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                  {filters.accessibility && (
+                    <button
+                      onClick={() => setFilters({ ...filters, accessibility: undefined })}
+                      className="px-3 py-1.5 text-sm font-medium bg-teal-100 text-teal-700 rounded-full hover:bg-teal-200 transition-colors flex items-center gap-2"
+                    >
+                      Accessible
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </>
+              )}
+              <button
+                onClick={() => {
+                  setFilters({});
+                  setIsFilterOpen(false);
+                }}
+                className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 underline"
+              >
+                Clear all
+              </button>
+            </div>
           )}
         </div>
 

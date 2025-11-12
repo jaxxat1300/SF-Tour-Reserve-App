@@ -40,7 +40,9 @@ const experienceTypes = [
 const neighborhoods = [
   'Nob Hill', 'Presidio', 'SoMa', 'Embarcadero', 'Mission District',
   'Richmond', 'Financial District', 'Marina', 'Fisherman\'s Wharf',
-  'Telegraph Hill', 'Hayes Valley',
+  'Telegraph Hill', 'Hayes Valley', 'Haight-Ashbury', 'Sunset',
+  'Twin Peaks', 'Russian Hill', 'North Beach', 'Civic Center',
+  'Western Addition', 'Golden Gate Park',
 ];
 
 const timeOptions = [

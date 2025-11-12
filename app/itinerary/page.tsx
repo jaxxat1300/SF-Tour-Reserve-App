@@ -4,12 +4,15 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import ExperienceCard from '@/components/ExperienceCard';
+import ExperienceMap from '@/components/ExperienceMap';
 import PlanningOptions, { Occasion, Duration, BudgetLevel } from '@/components/PlanningOptions';
-import { Plus, Clock, Trash2, Calendar, Map, Download, Edit2, Check, GripVertical } from 'lucide-react';
+import { Plus, Clock, Trash2, Calendar, Map, Download, Edit2, Check, GripVertical, Navigation, ExternalLink, Ticket, ShoppingCart } from 'lucide-react';
 import { mockExperiences } from '@/lib/mockData';
 import { useStore, Itinerary, ItineraryItem } from '@/lib/store';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { formatPrice } from '@/lib/utils';
 
 function ItineraryContent() {
   const searchParams = useSearchParams();
@@ -217,6 +220,11 @@ function ItineraryContent() {
       }, 0)
     : 0;
 
+  // Get bookable experiences (those with booking URLs)
+  const bookableItems = currentItinerary
+    ? currentItinerary.items.filter((item) => item.experience.bookingUrl)
+    : [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -410,6 +418,18 @@ function ItineraryContent() {
                     <Plus className="h-4 w-4" />
                     Add Experience
                   </Link>
+                  {bookableItems.length > 0 && (
+                    <button
+                      onClick={() => {
+                        // Scroll to booking section
+                        document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="px-4 py-2 bg-secondary-600 text-white font-semibold rounded-lg hover:bg-secondary-700 transition-colors flex items-center gap-2"
+                    >
+                      <Ticket className="h-4 w-4" />
+                      View Bookings ({bookableItems.length})
+                    </button>
+                  )}
                   <button className="px-4 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
                     <Download className="h-4 w-4" />
                     Export
@@ -418,9 +438,78 @@ function ItineraryContent() {
               </div>
             </div>
 
+            {/* Booking Summary */}
+            {bookableItems.length > 0 && (
+              <motion.div
+                id="booking-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-xl p-6 shadow-sm border border-primary-100 mb-6"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary-600 rounded-lg">
+                      <Ticket className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Bookable Experiences</h3>
+                      <p className="text-sm text-gray-600">
+                        {bookableItems.length} {bookableItems.length === 1 ? 'experience' : 'experiences'} require reservations
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {bookableItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-lg p-4 border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-sm text-gray-900 mb-1">{item.experience.name}</h4>
+                          <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+                            <Clock className="h-3 w-3" />
+                            <span>{item.startTime}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 line-clamp-2">{item.experience.description}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <a
+                          href={item.experience.bookingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          Book Now
+                        </a>
+                        <Link
+                          href={`/experience/${item.experience.id}`}
+                          className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Details
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 pt-4 border-t border-primary-200">
+                  <p className="text-xs text-gray-600 text-center">
+                    💡 Click "Book Now" to reserve tickets or make reservations for each experience
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
             {/* Timeline */}
             {currentItinerary.items.length === 0 ? (
-              <div className="bg-white rounded-xl p-12 shadow-sm text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-xl p-12 shadow-sm text-center"
+              >
                 <Map className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Your itinerary is empty</h3>
                 <p className="text-gray-600 mb-6">Start building your perfect day in San Francisco</p>
@@ -430,69 +519,142 @@ function ItineraryContent() {
                 >
                   Browse Experiences
                 </Link>
-              </div>
+              </motion.div>
             ) : (
-              <div className="space-y-4">
-                {currentItinerary.items.map((item, index) => (
-                  <div
-                    key={item.id}
-                    draggable
-                    onDragStart={() => handleDragStart(item.id)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, index)}
-                    onDragEnd={handleDragEnd}
-                    className={`bg-white rounded-xl p-6 shadow-sm border-l-4 border-primary-500 transition-all cursor-move ${
-                      draggedItem === item.id ? 'opacity-50' : ''
-                    } ${
-                      dragOverIndex === index ? 'border-l-secondary-500 bg-secondary-50' : ''
-                    }`}
-                  >
-                    <div className="flex gap-6">
-                      <div className="flex-shrink-0 flex items-center">
-                        <GripVertical className="h-5 w-5 text-gray-400 cursor-grab active:cursor-grabbing" />
-                      </div>
-                      
-                      <div className="flex-shrink-0 w-24">
-                        <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">
-                          Time
-                        </label>
-                        <input
-                          type="time"
-                          value={item.startTime}
-                          onChange={(e) => updateItemTime(item.id, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          {item.experience.duration} min
-                        </p>
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {item.experience.name}
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">{item.experience.neighborhood}</p>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Timeline List */}
+                <div className="lg:col-span-2 space-y-4">
+                  <AnimatePresence mode="popLayout">
+                    {currentItinerary.items.map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.2 }}
+                        draggable
+                        onDragStart={() => handleDragStart(item.id)}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className={`bg-white rounded-xl p-6 shadow-sm border-l-4 border-primary-500 transition-all cursor-move hover:shadow-md ${
+                          draggedItem === item.id ? 'opacity-50 scale-95' : ''
+                        } ${
+                          dragOverIndex === index ? 'border-l-secondary-500 bg-secondary-50 scale-105' : ''
+                        }`}
+                      >
+                        <div className="flex gap-6">
+                          <div className="flex-shrink-0 flex items-center">
+                            <GripVertical className="h-5 w-5 text-gray-400 cursor-grab active:cursor-grabbing hover:text-gray-600 transition-colors" />
                           </div>
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          
+                          <div className="flex-shrink-0 w-24">
+                            <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">
+                              Time
+                            </label>
+                            <input
+                              type="time"
+                              value={item.startTime}
+                              onChange={(e) => updateItemTime(item.id, e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent hover:border-primary-300 transition-colors"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              {item.experience.duration} min
+                            </p>
+                          </div>
+
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <Link href={`/experience/${item.experience.id}`} className="flex-1 group">
+                                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                                  {item.experience.name}
+                                </h3>
+                                <p className="text-sm text-gray-600 mt-1">{item.experience.neighborhood}</p>
+                              </Link>
+                              <button
+                                onClick={() => removeItem(item.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-2"
+                                title="Remove from itinerary"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                            <p className="text-sm text-gray-700 mb-3 line-clamp-2">{item.experience.description}</p>
+                            <div className="flex flex-wrap items-center gap-4 text-xs text-gray-600 mb-3">
+                              <span>{formatPrice(item.experience.priceLevel)}</span>
+                              <span>•</span>
+                              <span>{item.experience.duration} min</span>
+                              {item.experience.accessibility && <span>• ♿ Accessible</span>}
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <Link
+                                href={`/experience/${item.experience.id}`}
+                                className="px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
+                              >
+                                View Details
+                              </Link>
+                              {item.experience.bookingUrl ? (
+                                <a
+                                  href={item.experience.bookingUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-1"
+                                >
+                                  <Ticket className="h-3 w-3" />
+                                  Book
+                                </a>
+                              ) : null}
+                              <a
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.experience.address)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
+                              >
+                                <Navigation className="h-3 w-3" />
+                                Directions
+                              </a>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-700 mb-3">{item.experience.description}</p>
-                        <div className="flex gap-4 text-xs text-gray-600">
-                          <span>{'$'.repeat(item.experience.priceLevel)}</span>
-                          <span>{item.experience.duration} min</span>
-                          {item.experience.accessibility && <span>♿ Accessible</span>}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+
+                {/* Map View */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-24">
+                    <div className="bg-white rounded-xl p-4 shadow-sm mb-4">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">Itinerary Map</h3>
+                      <p className="text-xs text-gray-600 mb-4">
+                        View all your experiences on the map
+                      </p>
+                    </div>
+                    <div className="rounded-xl overflow-hidden border border-gray-200">
+                      <ExperienceMap
+                        experiences={currentItinerary.items.map(item => item.experience)}
+                        height="500px"
+                      />
+                    </div>
+                    <div className="mt-4 bg-white rounded-xl p-4 shadow-sm">
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Total Duration:</span>
+                          <span className="font-semibold text-gray-900">
+                            {Math.floor(totalDuration / 60)}h {totalDuration % 60}m
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Estimated Cost:</span>
+                          <span className="font-semibold text-gray-900">
+                            ${estimatedBudget.toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
             )}
           </>

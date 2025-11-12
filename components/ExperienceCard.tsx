@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MapPin, Clock, DollarSign } from 'lucide-react';
+import { Heart, MapPin, Clock, DollarSign, Ticket } from 'lucide-react';
 import { Experience } from '@/lib/store';
 import { useStore } from '@/lib/store';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 
 interface ExperienceCardProps {
   experience: Experience;
@@ -20,8 +20,6 @@ export default function ExperienceCard({
 }: ExperienceCardProps) {
   const { isFavorite, addFavorite, removeFavorite } = useStore();
   const favorite = isFavorite(experience.id);
-
-  const priceLabels = ['$', '$$', '$$$', '$$$$'];
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,9 +60,10 @@ export default function ExperienceCard({
             src={experience.imageUrl}
             alt={experience.name}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           {showActions && (
             <button
               onClick={handleFavorite}
@@ -81,11 +80,11 @@ export default function ExperienceCard({
 
         <div className="p-4">
           <div className="flex items-start justify-between mb-2">
-            <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-1">
+            <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-1 cursor-pointer">
               {experience.name}
             </h3>
             {experience.rating && (
-              <span className="text-sm font-medium text-gray-600 flex items-center gap-1">
+              <span className="text-sm font-medium text-gray-600 flex items-center gap-1 flex-shrink-0 ml-2">
                 ⭐ {experience.rating}
               </span>
             )}
@@ -104,14 +103,22 @@ export default function ExperienceCard({
             </span>
             <span className="flex items-center gap-1">
               <DollarSign className="h-3 w-3" />
-              {priceLabels[experience.priceLevel - 1]}
+              {formatPrice(experience.priceLevel)}
             </span>
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="inline-block px-2 py-1 text-xs font-medium rounded-md bg-primary-100 text-primary-700">
-              {typeLabels[experience.type]}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="inline-block px-2 py-1 text-xs font-medium rounded-md bg-primary-100 text-primary-700">
+                {typeLabels[experience.type]}
+              </span>
+              {experience.bookingUrl && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-secondary-100 text-secondary-700">
+                  <Ticket className="h-3 w-3" />
+                  Bookable
+                </span>
+              )}
+            </div>
             {onSelect && (
               <button
                 onClick={(e) => {

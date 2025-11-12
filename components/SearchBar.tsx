@@ -29,7 +29,7 @@ export default function SearchBar({ initialQuery = '', large = false }: SearchBa
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Try: 'romantic dinner with bay views under $100'"
-          className={`w-full ${
+          className={`w-full text-gray-900 placeholder:text-gray-400 ${
             large
               ? 'h-16 text-lg pl-14 pr-4 rounded-2xl shadow-lg'
               : 'h-12 pl-12 pr-4 rounded-xl shadow-sm'

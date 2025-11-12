@@ -3,11 +3,13 @@
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/components/Header';
-import { MapPin, Clock, DollarSign, Heart, Calendar, ExternalLink } from 'lucide-react';
+import ExperienceMap from '@/components/ExperienceMap';
+import { MapPin, Clock, DollarSign, Heart, Calendar, ExternalLink, Navigation, Ticket } from 'lucide-react';
 import { mockExperiences } from '@/lib/mockData';
 import { useStore } from '@/lib/store';
 import { useState } from 'react';
 import Link from 'next/link';
+import { formatPrice } from '@/lib/utils';
 
 export default function ExperienceDetail() {
   const params = useParams();
@@ -29,8 +31,6 @@ export default function ExperienceDetail() {
       </div>
     );
   }
-
-  const priceLabels = ['$', '$$', '$$$', '$$$$'];
 
   const typeLabels: Record<typeof experience.type, string> = {
     food: 'Food & Dining',
@@ -144,7 +144,7 @@ export default function ExperienceDetail() {
                     <span className="text-sm font-medium">Price</span>
                   </div>
                   <p className="text-gray-900 font-semibold">
-                    {priceLabels[experience.priceLevel - 1]}
+                    {formatPrice(experience.priceLevel)}
                   </p>
                 </div>
                 <div>
@@ -172,7 +172,7 @@ export default function ExperienceDetail() {
             </div>
 
             {/* Features */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Features</h2>
               <div className="flex flex-wrap gap-3">
                 {experience.indoor && (
@@ -197,32 +197,66 @@ export default function ExperienceDetail() {
                 )}
               </div>
             </div>
+
+            {/* Map Section */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Location</h2>
+              <div className="rounded-xl overflow-hidden border border-gray-200">
+                <ExperienceMap
+                  experiences={[experience]}
+                  selectedExperienceId={experience.id}
+                  height="400px"
+                />
+              </div>
+              <div className="mt-4 flex gap-3">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(experience.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  <Navigation className="h-4 w-4" />
+                  Get Directions
+                </a>
+                <button
+                  onClick={() => {
+                    if (navigator.clipboard) {
+                      navigator.clipboard.writeText(experience.address);
+                    }
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Copy Address
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
-              <div className="mb-6">
-                <h3 className="text-sm font-semibold text-gray-900 mb-2">Location</h3>
-                <p className="text-sm text-gray-600 mb-2">{experience.address}</p>
-                <p className="text-xs text-gray-500">{experience.neighborhood}</p>
-              </div>
-
               <div className="space-y-3">
                 {experience.bookingUrl ? (
-                  <a
-                    href={experience.bookingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full px-4 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    Book at {experience.name}
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
+                  <>
+                    <a
+                      href={experience.bookingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full px-4 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <Ticket className="h-5 w-5" />
+                      Book Tickets / Reservations
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                    <div className="text-xs text-gray-600 text-center px-2">
+                      Click to book tickets or make reservations on the official website
+                    </div>
+                  </>
                 ) : (
-                  <button className="w-full px-4 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors">
-                    Book at {experience.name}
-                  </button>
+                  <div className="text-center py-2">
+                    <p className="text-sm text-gray-600 mb-2">No booking required</p>
+                    <p className="text-xs text-gray-500">This experience doesn't require advance reservations</p>
+                  </div>
                 )}
                 <Link
                   href={`/itinerary?add=${experience.id}`}
@@ -231,8 +265,45 @@ export default function ExperienceDetail() {
                   <Calendar className="h-4 w-4" />
                   Add to Itinerary
                 </Link>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(experience.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full px-4 py-3 bg-gray-100 text-gray-900 font-semibold rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Navigation className="h-4 w-4" />
+                  Get Directions
+                </a>
               </div>
             </div>
+
+            {/* Related Experiences */}
+            {mockExperiences.filter(e => 
+              e.id !== experience.id && 
+              (e.neighborhood === experience.neighborhood || e.type === experience.type)
+            ).slice(0, 3).length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4">Nearby Experiences</h3>
+                <div className="space-y-3">
+                  {mockExperiences
+                    .filter(e => 
+                      e.id !== experience.id && 
+                      (e.neighborhood === experience.neighborhood || e.type === experience.type)
+                    )
+                    .slice(0, 3)
+                    .map((related) => (
+                      <Link
+                        key={related.id}
+                        href={`/experience/${related.id}`}
+                        className="block p-3 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+                      >
+                        <h4 className="font-medium text-sm text-gray-900 mb-1">{related.name}</h4>
+                        <p className="text-xs text-gray-600">{related.neighborhood}</p>
+                      </Link>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

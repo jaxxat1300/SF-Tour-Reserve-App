@@ -31,7 +31,20 @@
   @apply mt-4 mr-4;
 }
 
+.mapboxgl-ctrl-bottom-left {
+  @apply mb-4 ml-4;
+}
+
 .mapboxgl-ctrl-bottom-right {
   @apply mb-4 mr-4;
+}
+
+/* Experience popup styles */
+.experience-popup .mapboxgl-popup-content {
+  @apply p-0 rounded-lg overflow-hidden shadow-xl;
+}
+
+.experience-popup a {
+  @apply no-underline;
 }
 

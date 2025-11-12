@@ -31,6 +31,10 @@ const experienceTypes = [
   { value: 'sightseeing', label: 'Sightseeing' },
   { value: 'hidden', label: 'Hidden Gems' },
   { value: 'family', label: 'Family' },
+  { value: 'activities', label: 'Activities' },
+  { value: 'entertainment', label: 'Entertainment' },
+  { value: 'cultural', label: 'Cultural' },
+  { value: 'free', label: 'Free Activities' },
 ];
 
 const neighborhoods = [

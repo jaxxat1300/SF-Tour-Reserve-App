@@ -5,7 +5,8 @@ export interface Experience {
   id: string;
   name: string;
   description: string;
-  type: 'food' | 'outdoor' | 'arts' | 'nightlife' | 'shopping' | 'wellness' | 'sightseeing' | 'hidden' | 'family';
+  type: 'food' | 'outdoor' | 'arts' | 'nightlife' | 'shopping' | 'wellness' | 'sightseeing' | 'hidden' | 'family' | 'activities' | 'entertainment' | 'cultural' | 'free';
+  category?: 'dining' | 'activities' | 'entertainment' | 'outdoor' | 'cultural' | 'free' | 'shopping' | 'nightlife';
   neighborhood: string;
   address: string;
   lat: number;
@@ -20,6 +21,8 @@ export interface Experience {
   bookingUrl?: string;
   duration: number; // in minutes
   rating?: number;
+  hours?: string;
+  highlights?: string[];
 }
 
 export interface ItineraryItem {
@@ -35,6 +38,7 @@ export interface Itinerary {
   name: string;
   occasion: string;
   budget?: string;
+  partySize?: 'solo' | 'couple' | 'small-group' | 'large-group';
   duration: 'half-day' | 'full-day' | 'evening' | 'custom';
   items: ItineraryItem[];
   createdAt: string;

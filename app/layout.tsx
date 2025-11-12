@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "SF Experience Discovery | Plan Your Perfect Day",
-  description: "Discover and plan amazing experiences in San Francisco. Find restaurants, activities, events, and hidden gems tailored to your occasion and budget.",
+  title: "SF Celebration Planner | Plan Your Perfect Special Occasion",
+  description: "Plan unforgettable birthdays, anniversaries, and special moments in San Francisco. Discover curated experiences, activities, dining, and entertainment tailored to your occasion, budget, and party size.",
 };
 
 export default function RootLayout({

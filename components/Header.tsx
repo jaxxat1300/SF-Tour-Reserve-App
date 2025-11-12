@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, MapPin, Calendar } from 'lucide-react';
+import { Heart, Calendar, Sparkles } from 'lucide-react';
 import { useStore } from '@/lib/store';
 
 export default function Header() {
@@ -11,8 +11,8 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
-          <MapPin className="h-6 w-6 text-primary-600" />
-          <span className="text-xl font-semibold text-gray-900">SF Experiences</span>
+          <Sparkles className="h-6 w-6 text-primary-600" />
+          <span className="text-xl font-semibold text-gray-900">SF Celebration Planner</span>
         </Link>
         
         <nav className="hidden md:flex items-center space-x-6">

@@ -10,6 +10,7 @@ import ExperienceMap from '@/components/ExperienceMap';
 import { Filter, Map } from 'lucide-react';
 import { mockExperiences } from '@/lib/mockData';
 import { Experience } from '@/lib/store';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Natural language search parser
 function parseNaturalLanguageQuery(query: string) {
@@ -334,11 +335,27 @@ function SearchContent() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredExperiences.map((experience) => (
-              <ExperienceCard key={experience.id} experience={experience} />
-            ))}
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredExperiences.map((experience, index) => (
+                <motion.div
+                  key={experience.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.3) }}
+                  layout
+                >
+                  <ExperienceCard experience={experience} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
 

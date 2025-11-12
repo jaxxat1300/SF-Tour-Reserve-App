@@ -42,6 +42,10 @@ export default function ExperienceDetail() {
     sightseeing: 'Sightseeing',
     hidden: 'Hidden Gem',
     family: 'Family',
+    activities: 'Activities',
+    entertainment: 'Entertainment',
+    cultural: 'Cultural',
+    free: 'Free Activities',
   };
 
   const handleFavorite = () => {
@@ -109,6 +113,23 @@ export default function ExperienceDetail() {
                 {experience.description}
               </p>
 
+              {/* Highlights */}
+              {experience.highlights && experience.highlights.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Highlights</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {experience.highlights.map((highlight, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 text-sm rounded-full bg-primary-100 text-primary-700 font-medium"
+                      >
+                        {highlight}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t">
                 <div>
                   <div className="flex items-center gap-2 text-gray-600 mb-1">
@@ -138,6 +159,15 @@ export default function ExperienceDetail() {
                     {experience.accessibility ? 'Yes' : 'No'}
                   </p>
                 </div>
+                {experience.hours && (
+                  <div className="md:col-span-2">
+                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                      <Clock className="h-4 w-4" />
+                      <span className="text-sm font-medium">Hours</span>
+                    </div>
+                    <p className="text-gray-900 font-semibold">{experience.hours}</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -174,7 +204,8 @@ export default function ExperienceDetail() {
             <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Location</h3>
-                <p className="text-sm text-gray-600">{experience.address}</p>
+                <p className="text-sm text-gray-600 mb-2">{experience.address}</p>
+                <p className="text-xs text-gray-500">{experience.neighborhood}</p>
               </div>
 
               <div className="space-y-3">

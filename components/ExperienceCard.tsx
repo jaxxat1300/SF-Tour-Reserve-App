@@ -43,16 +43,20 @@ export default function ExperienceCard({
     sightseeing: 'Sightseeing',
     hidden: 'Hidden Gem',
     family: 'Family',
+    activities: 'Activities',
+    entertainment: 'Entertainment',
+    cultural: 'Cultural',
+    free: 'Free Activities',
   };
 
   return (
     <Link href={`/experience/${experience.id}`}>
-      <div
-        className={cn(
-          'group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer',
-          'border border-gray-100'
-        )}
-      >
+        <div
+          className={cn(
+            'group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer',
+            'border border-gray-100'
+          )}
+        >
         <div className="relative h-48 w-full overflow-hidden">
           <Image
             src={experience.imageUrl}

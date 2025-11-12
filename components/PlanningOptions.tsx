@@ -16,16 +16,19 @@ export type Occasion =
 export type Duration = 'half-day' | 'full-day' | 'evening' | 'custom';
 
 export type BudgetLevel = 1 | 2 | 3 | 4 | 'custom' | number;
+export type PartySize = 'solo' | 'couple' | 'small-group' | 'large-group';
 
 interface PlanningOptionsProps {
   occasion: Occasion;
   duration: Duration;
   budget: BudgetLevel | number;
   customBudget?: number;
+  partySize?: PartySize;
   onOccasionChange: (occasion: Occasion) => void;
   onDurationChange: (duration: Duration) => void;
   onBudgetChange: (budget: BudgetLevel | number) => void;
   onCustomBudgetChange?: (amount: number) => void;
+  onPartySizeChange?: (size: PartySize) => void;
 }
 
 const occasions = [
@@ -51,12 +54,21 @@ export default function PlanningOptions({
   duration,
   budget,
   customBudget,
+  partySize,
   onOccasionChange,
   onDurationChange,
   onBudgetChange,
   onCustomBudgetChange,
+  onPartySizeChange,
 }: PlanningOptionsProps) {
   const [showCustomBudget, setShowCustomBudget] = useState(budget === 'custom');
+  
+  const partySizes = [
+    { value: 'solo', label: 'Solo', icon: User },
+    { value: 'couple', label: 'Couple', icon: Heart },
+    { value: 'small-group', label: 'Small Group', description: '3-5 people' },
+    { value: 'large-group', label: 'Large Group', description: '6+ people' },
+  ];
 
   const budgetLabels = ['$', '$$', '$$$', '$$$$'];
   const budgetRanges = [
@@ -188,6 +200,37 @@ export default function PlanningOptions({
           </div>
         )}
       </div>
+
+      {/* Party Size Selector */}
+      {onPartySizeChange && (
+        <div>
+          <label className="block text-sm font-semibold text-gray-900 mb-3">
+            Party Size
+          </label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {partySizes.map((size) => {
+              const Icon = size.icon || Users;
+              return (
+                <button
+                  key={size.value}
+                  onClick={() => onPartySizeChange(size.value as PartySize)}
+                  className={`p-4 rounded-xl border-2 transition-all text-left ${
+                    partySize === size.value
+                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <Icon className="h-5 w-5 mb-2" />
+                  <div className="text-sm font-medium">{size.label}</div>
+                  {size.description && (
+                    <div className="text-xs text-gray-500 mt-1">{size.description}</div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
